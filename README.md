@@ -2,11 +2,6 @@
 
 A shared assignment deadline tracker for students. Built as the prototype for the **Human Computer Interaction (HCIN6222)** Portfolio of Evidence.
 
-- **Student:** Mashudu Lambani
-- **Student number:** ST10477942
-- **GitHub:** Mashudu05
-- **Module outcomes:** MO1, MO2, MO3
-
 ## What it is
 
 DeadlineHub lets a student record every assignment deadline once, see what is due next, and (optionally) compare deadlines with classmates in the same module.
