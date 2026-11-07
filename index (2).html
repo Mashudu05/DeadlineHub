@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DeadlineHub – Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F2F6F8;--card:#fff;--ink:#1D2B36;--mute:#4A5C69;--line:#CBD7DE;--pri:#255F80;--priS:#E1EEF4;
+--hot:#A63A2B;--hotS:#FBE9E5;--warm:#7A5200;--warmS:#FFF1D6;--cool:#2D6A45;--coolS:#E3F2E8;--focus:#12384F}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:1rem/1.55 "Atkinson Hyperlegible",system-ui,sans-serif}
+h1,h2,h3{line-height:1.2;margin:0}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;background:#fff;padding:8px;z-index:9}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+header{background:var(--card);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.brand{font-size:1.35rem;font-weight:700;color:var(--pri)}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+nav button{background:none;border:0;padding:8px 14px;border-radius:999px;font:inherit;color:var(--ink);cursor:pointer}
+nav button[aria-current=page]{background:var(--priS);color:var(--pri);font-weight:700}
+main{max-width:860px;margin:0 auto;padding:24px 16px 80px}
+.sub{color:var(--mute);margin:4px 0 20px}
+.btn{font:inherit;border-radius:12px;border:1.5px solid var(--pri);background:var(--card);color:var(--pri);padding:9px 16px;cursor:pointer;font-weight:700}
+.btn.p{background:var(--pri);color:#fff}.btn.d{border-color:var(--hot);color:var(--hot)}.btn.s{padding:5px 12px;font-weight:400}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:16px}.bar .sp{flex:1}
+.chip{font:inherit;border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:5px 13px;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--pri);border-color:var(--pri);color:#fff}
+.item{background:var(--card);border:1px solid var(--line);border-radius:16px;display:grid;grid-template-columns:auto 96px 1fr auto;gap:14px;align-items:center;padding:14px 16px;margin-bottom:10px}
+.item input[type=checkbox]{width:24px;height:24px;accent-color:var(--pri)}
+.cd{border-radius:12px;padding:8px 6px;text-align:center;font-size:.85rem;font-weight:700;line-height:1.25}
+.cd b{display:block;font-size:1.5rem}
+.hot{background:var(--hotS);color:var(--hot)}.warm{background:var(--warmS);color:var(--warm)}.cool{background:var(--coolS);color:var(--cool)}
+.meta{color:var(--mute);font-size:.9rem}
+.acts{display:flex;gap:6px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;margin-bottom:14px}
+.note{background:var(--warmS);color:var(--warm);border-radius:12px;padding:10px 14px;margin:0 0 14px}
+.tick{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.75rem;font-weight:400;margin:0;cursor:pointer}
+.help{color:var(--warm);font-weight:700}
+.empty{padding:28px;text-align:center;color:var(--mute);border:2px dashed var(--line);border-radius:16px}
+label{display:block;font-weight:700;margin:12px 0 4px}
+input,select{font:inherit;padding:9px 11px;border:1.5px solid #7A8E9B;border-radius:10px;width:100%;background:#fff;color:var(--ink)}
+input[type=checkbox]{width:auto}
+.err{color:var(--hot);font-size:.9rem;margin:4px 0 0;min-height:1.2em}
+dialog{border:0;border-radius:18px;padding:22px;width:min(440px,92vw);box-shadow:0 10px 40px #0004}
+dialog::backdrop{background:#10202c80}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.end{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+table{border-collapse:collapse;width:100%;table-layout:fixed;background:var(--card)}
+caption{text-align:left;font-weight:700;font-size:1.1rem;padding:0 0 8px}
+th,td{border:1px solid var(--line);vertical-align:top;padding:4px;font-size:.8rem;height:78px}
+th{height:auto;background:var(--priS)}
+td .n{font-weight:700;color:var(--mute)}td.today{background:var(--priS)}
+.ev{display:block;border-radius:6px;padding:1px 5px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sw{display:flex;align-items:center;gap:10px;margin:0;font-weight:400}.sw input{width:22px;height:22px}
+.thread{border-top:1px solid var(--line);margin-top:10px;padding-top:8px}
+.thread p{margin:4px 0}.thread .row{margin-top:8px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 20px;border-radius:12px;opacity:0;transition:.25s;pointer-events:none}
+#toast.on{opacity:1;transform:translateX(-50%)}
+.login{max-width:400px;margin:40px auto}
+@media(max-width:600px){.item{grid-template-columns:auto 80px 1fr}.acts{grid-column:1/-1}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<header id="hdr"></header>
+<main id="main" tabindex="-1"></main>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<dialog id="dlg" aria-labelledby="dt">
+ <form id="f" novalidate>
+  <h2 id="dt">Add deadline</h2>
+  <input type="hidden" id="fid">
+  <label for="fmod">Module</label>
+  <select id="fmod"></select>
+  <label for="ftitle">Assignment title</label>
+  <input id="ftitle" required maxlength="60">
+  <label for="fdue">Due date</label>
+  <input id="fdue" type="date" required>
+  <div class="row">
+   <div><label for="fw">Weighting (%)</label><input id="fw" type="number" min="1" max="100" value="20"></div>
+   <div><label for="fp">Priority</label><select id="fp"><option>High</option><option selected>Medium</option><option>Low</option></select></div>
+  </div>
+  <p class="err" id="ferr" role="alert"></p>
+  <div class="end"><button type="button" class="btn" id="fcancel">Cancel</button><button class="btn p">Save deadline</button></div>
+ </form>
+</dialog>
+
+<dialog id="del" aria-labelledby="delt">
+ <h2 id="delt">Delete this deadline?</h2>
+ <p id="delp" class="meta"></p>
+ <div class="end"><button class="btn" id="delno">Keep it</button><button class="btn d" id="delyes">Delete deadline</button></div>
+</dialog>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const plus=n=>{const d=new Date();d.setDate(d.getDate()+n);return iso(d)};
+const today=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
+const left=s=>Math.round((new Date(s+'T00:00:00')-today())/864e5);
+const MODS=['PROG5121','DATA6211','HCIN6222','IPMA6212'];
+let S={user:null,view:'dash',mode:'list',filter:'All',del:null,
+ items:[
+  {id:1,mod:'HCIN6222',title:'POE Part 2 – Prototype',due:plus(1),w:30,p:'High',done:false},
+  {id:2,mod:'PROG5121',title:'POE Part 3 – Final build',due:plus(5),w:40,p:'High',done:false},
+  {id:3,mod:'DATA6211',title:'Database design test',due:plus(12),w:20,p:'Medium',done:false},
+  {id:4,mod:'IPMA6212',title:'Quality plan submission',due:plus(20),w:25,p:'Medium',done:false},
+  {id:6,mod:'IPMA6212',title:'Project schedule draft',due:plus(-1),w:15,p:'Medium',done:false},
+  {id:5,mod:'HCIN6222',title:'POE Part 1 – Research report',due:plus(-14),w:20,p:'High',done:true,doneOn:plus(-15)}],
+ opt:{PROG5121:true,DATA6211:false,HCIN6222:true,IPMA6212:false},
+ board:[
+  {id:1,mod:'PROG5121',title:'POE Part 3 – Final build',by:'thabo_k',due:plus(5),thanks:3,me:false,
+   c:[{by:'lerato_m',t:'Is this the individual or group submission?'},{by:'thabo_k',t:'Individual – it is in the brief.'}]},
+  {id:2,mod:'HCIN6222',title:'Part 2 prototype + updated report',by:'nomsa_d',due:plus(1),thanks:5,me:false,
+   c:[{by:'sipho_n',t:'Max 15 pages, screenshots included.'}]},
+  {id:3,mod:'DATA6211',title:'Normalisation quiz',by:'lerato_m',due:plus(9),thanks:1,me:false,c:[]},
+  {id:4,mod:'IPMA6212',title:'MS Project plan',by:'sipho_n',due:plus(7),thanks:2,me:false,c:[]}],
+ nid:10};
+
+function urg(n){
+ const t=n<0?'Past due – update or complete':n===0?'Due today':n===1?'Due tomorrow':'Due in '+n+' days';
+ return n<=2?{c:'hot',i:'▲',t,n}:n<=7?{c:'warm',i:'◆',t,n}:{c:'cool',i:'●',t,n};
+}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),2600)}
+
+function head(){
+ const nav=S.user?`<nav aria-label="Main">${[['dash','Dashboard'],['board','Class board'],['hist','History']]
+  .map(([v,l])=>`<button data-go="${v}" ${S.view===v?'aria-current="page"':''}>${l}</button>`).join('')}</nav>
+  <span class="meta">${esc(S.user)} <button class="btn s" data-out>Sign out</button></span>`:'';
+ $('#hdr').innerHTML=`<span class="brand">DeadlineHub</span>${nav}`;
+}
+
+function login(){
+ return `<section class="card login"><h1>Welcome to DeadlineHub</h1>
+ <p class="sub">Log every assignment once and see what is due next.</p>
+ <form id="lf" novalidate>
+ <label for="sn">Student number</label><input id="sn" inputmode="numeric" autocomplete="username" aria-describedby="snerr">
+ <p class="err" id="snerr" role="alert"></p>
+ <label for="un">Display name for the class board</label><input id="un" maxlength="20" placeholder="e.g. thabo_k">
+ <div class="end"><button class="btn p">Sign in</button></div></form></section>`;
+}
+
+function dash(){
+ const act=S.items.filter(i=>!i.done&&(S.filter==='All'||i.mod===S.filter)).sort((a,b)=>a.due<b.due?-1:1);
+ const m=today().getMonth(),doneN=S.items.filter(i=>i.done&&new Date(i.doneOn).getMonth()===m).length;
+ const soon=S.items.filter(i=>!i.done&&left(i.due)<=7).length;
+ const note=soon>=3?`<p class="note" role="status">Busy week: ${soon} deadlines need attention within 7 days. Start with the one at the top and tick each off as you go.</p>`:'';
+ const total=S.items.filter(i=>!i.done).length;
+ const shown=S.filter==='All'?'':`<p class="meta" role="status">Showing ${act.length} of ${total} active deadlines for ${S.filter}.</p>`;
+ const chips=['All',...MODS].map(x=>`<button class="chip" data-f="${x}" aria-pressed="${S.filter===x}">${x}</button>`).join('');
+ let body;
+ if(S.mode==='cal')body=cal(act);
+ else body=act.length?act.map(i=>{const u=urg(left(i.due));
+  return `<article class="item"><label class="tick"><input type="checkbox" data-done="${i.id}" aria-label="Mark ${esc(i.title)} as done"><span aria-hidden="true">Done</span></label>
+  <div class="cd ${u.c}"><span aria-hidden="true">${u.i}</span> ${u.n<=1?'':'<b>'+u.n+'</b>'}${u.t}</div>
+  <div><h3>${esc(i.title)}</h3><div class="meta">${i.mod} · ${i.w}% of module · ${i.p} priority · ${i.due}</div>${u.n<0?'<div class="help">Need more time? Use Edit to set a new date.</div>':''}</div>
+  <div class="acts"><button class="btn s" data-edit="${i.id}" aria-label="Edit ${esc(i.title)}">Edit</button><button class="btn s d" data-del="${i.id}" aria-label="Delete ${esc(i.title)}">Delete</button></div></article>`}).join('')
+  :'<div class="empty">Nothing due here. Add a deadline to get started.</div>';
+ return `<h1>Your deadlines</h1><p class="sub">${total} active · ${doneN} completed this month. This one's coming up – you've got this.</p>
+ <div class="bar"><button class="btn p" data-add>+ Add Deadline</button><span class="sp"></span>
+ <div role="group" aria-label="Choose view"><button class="chip" data-m="list" aria-pressed="${S.mode==='list'}">List</button> <button class="chip" data-m="cal" aria-pressed="${S.mode==='cal'}">Calendar</button></div></div>
+ ${note}<div class="bar" role="group" aria-label="Filter by module">${chips}</div>${shown}${body}`;
+}
+
+function cal(list){
+ const t=today(),y=t.getFullYear(),mo=t.getMonth(),first=(new Date(y,mo,1).getDay()+6)%7,dim=new Date(y,mo+1,0).getDate();
+ let rows='',d=1;
+ for(let r=0;r<6&&d<=dim;r++){rows+='<tr>';
+  for(let c=0;c<7;c++){
+   if((r===0&&c<first)||d>dim){rows+='<td></td>';continue}
+   const s=iso(new Date(y,mo,d)),ev=list.filter(i=>i.due===s).map(i=>{const u=urg(left(i.due));return `<span class="ev ${u.c}"><span aria-hidden="true">${u.i}</span> ${esc(i.title)}</span>`}).join('');
+   rows+=`<td class="${d===t.getDate()?'today':''}"><span class="n">${d}</span>${ev}</td>`;d++}
+  rows+='</tr>'}
+ return `<table><caption>${t.toLocaleString('en-ZA',{month:'long',year:'numeric'})}</caption><thead><tr>${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(x=>`<th scope="col">${x}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function board(){
+ const sw=MODS.map(m=>`<label class="sw"><input type="checkbox" data-opt="${m}" ${S.opt[m]?'checked':''}> Share and view the ${m} class board</label>`).join('');
+ const posts=S.board.filter(b=>S.opt[b.mod]).sort((a,b)=>a.due<b.due?-1:1).map(b=>{const u=urg(left(b.due));
+  return `<article class="card"><h3>${esc(b.title)}</h3>
+  <div class="meta">${b.mod} · posted by ${esc(b.by)} · <span class="${u.c}" style="padding:1px 8px;border-radius:8px"><span aria-hidden="true">${u.i}</span> ${u.t}</span></div>
+  <p><button class="btn s" data-thx="${b.id}" aria-pressed="${!!b.liked}">${b.liked?'Thanks sent':'This was helpful'} (${b.thanks})</button></p>
+  <div class="thread"><strong>Comments (${b.c.length})</strong>${b.c.map(c=>`<p><b>${esc(c.by)}:</b> ${esc(c.t)}</p>`).join('')}
+  <div class="row"><input aria-label="Comment on ${esc(b.title)}" id="cm${b.id}" maxlength="120" placeholder="Ask a quick question or encourage"><button class="btn s" style="flex:0" data-cm="${b.id}">Post</button></div></div></article>`}).join('');
+ return `<h1>Class board</h1><p class="sub">Sharing is opt-in per module. Classmates only see your display name (${esc(S.user)}), never your student number.</p>
+ <div class="card">${sw}</div>${posts||'<div class="empty">Switch on a module above to see what classmates have shared.</div>'}`;
+}
+
+function hist(){
+ const d=S.items.filter(i=>i.done);
+ return `<h1>History</h1><p class="sub">Everything you have completed.</p>`+(d.length?d.map(i=>`<article class="card"><h3>${esc(i.title)}</h3><div class="meta">${i.mod} · completed ${i.doneOn}</div></article>`).join(''):'<div class="empty">Completed deadlines will show up here.</div>');
+}
+
+function render(){head();$('#main').innerHTML=!S.user?login():S.view==='board'?board():S.view==='hist'?hist():dash()}
+
+function openForm(id){
+ const it=S.items.find(i=>i.id===id);
+ $('#fmod').innerHTML=MODS.map(m=>`<option>${m}</option>`).join('');
+ $('#dt').textContent=it?'Edit deadline':'Add deadline';
+ $('#fid').value=it?it.id:'';$('#fmod').value=it?it.mod:MODS[0];$('#ftitle').value=it?it.title:'';
+ $('#fdue').value=it?it.due:'';$('#fdue').min=iso(today());$('#fw').value=it?it.w:20;$('#fp').value=it?it.p:'Medium';
+ $('#ferr').textContent='';$('#dlg').showModal();$('#ftitle').focus();
+}
+
+document.addEventListener('click',e=>{
+ const g=k=>e.target.closest('['+k+']')?.getAttribute(k);
+ if(e.target.closest('[data-go]')){S.view=g('data-go');render();$('#main').focus()}
+ else if(e.target.closest('[data-out]')){S.user=null;render()}
+ else if(e.target.closest('[data-add]'))openForm();
+ else if(e.target.closest('[data-edit]'))openForm(+g('data-edit'));
+ else if(e.target.closest('[data-f]')){S.filter=g('data-f');render()}
+ else if(e.target.closest('[data-m]')){S.mode=g('data-m');render()}
+ else if(e.target.closest('[data-del]')){const it=S.items.find(i=>i.id===+g('data-del'));S.del=it.id;$('#delp').textContent='“'+it.title+'” will be removed from your list. This cannot be undone.';$('#del').showModal()}
+ else if(e.target.closest('[data-thx]')){const b=S.board.find(x=>x.id===+g('data-thx'));if(!b.liked){b.liked=true;b.thanks++;toast('Thanks sent to '+b.by)}render()}
+ else if(e.target.closest('[data-cm]')){const id=+g('data-cm'),inp=$('#cm'+id);if(inp.value.trim()){S.board.find(x=>x.id===id).c.push({by:S.user,t:inp.value.trim()});toast('Comment posted');render()}}
+});
+document.addEventListener('change',e=>{
+ if(e.target.dataset.done){const it=S.items.find(i=>i.id==e.target.dataset.done);it.done=true;it.doneOn=iso(today());toast('Marked complete. Nice work.');render()}
+ if(e.target.dataset.opt){S.opt[e.target.dataset.opt]=e.target.checked;toast(e.target.checked?'You joined the '+e.target.dataset.opt+' board':'You left the '+e.target.dataset.opt+' board');render()}
+});
+document.addEventListener('submit',e=>{
+ e.preventDefault();
+ if(e.target.id==='lf'){
+  const sn=$('#sn').value.trim();
+  if(!/^\d{8,10}$/.test(sn)){$('#snerr').textContent='Enter your student number using digits only (8 to 10 digits).';$('#sn').focus();return}
+  S.user=$('#un').value.trim()||'student_'+sn.slice(-3);render();toast('Signed in. Here is what is coming up.');
+ }
+ if(e.target.id==='f'){
+  const t=$('#ftitle').value.trim(),d=$('#fdue').value;
+  if(!t){$('#ferr').textContent='Please enter an assignment title.';$('#ftitle').focus();return}
+  if(!d||left(d)<0){$('#ferr').textContent='Please enter a date in the future.';$('#fdue').focus();return}
+  const o={mod:$('#fmod').value,title:t,due:d,w:+$('#fw').value||0,p:$('#fp').value},id=$('#fid').value;
+  if(id)Object.assign(S.items.find(i=>i.id==id),o);else S.items.push({id:S.nid++,done:false,...o});
+  $('#dlg').close();toast(id?'Deadline updated':'Deadline added');render();
+ }
+});
+$('#fcancel').onclick=()=>$('#dlg').close();
+$('#delno').onclick=()=>$('#del').close();
+$('#delyes').onclick=()=>{S.items=S.items.filter(i=>i.id!==S.del);$('#del').close();toast('Deadline deleted');render()};
+render();
+</script>
+</body>
+</html>
